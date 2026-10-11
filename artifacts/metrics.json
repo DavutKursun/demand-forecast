@@ -1,0 +1,15 @@
+{
+  "n_series": 500,
+  "weeks": 260,
+  "last_week": "2017-12-25",
+  "folds": 6,
+  "wape_lightgbm": 0.0444,
+  "wape_seasonal_naive": 0.064,
+  "wape_moving_average_8": 0.1195,
+  "improvement_vs_best_baseline": 0.3056,
+  "coverage_80": 0.7608,
+  "bias_lightgbm": 0.718,
+  "folds_won": 6,
+  "train_rows": 413000,
+  "seconds": 468.9
+}
