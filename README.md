@@ -4,7 +4,7 @@
 
 <!-- M5: ![demo](assets/demo.gif) -->
 
-🚀 **Live demo:** _coming in Milestone 5_ · 📄 **How it works:** [docs/DESIGN.md](docs/DESIGN.md)
+🚀 **Live demo:** `https://<app>.streamlit.app` _(URL filled in after deploy)_ · 📄 **How it works:** [docs/DESIGN.md](docs/DESIGN.md)
 
 ## The problem
 
@@ -51,7 +51,7 @@ The dashboard reads only `artifacts/`, all of it committed, so it runs without a
 `forecasts.parquet`, `backtest_summary.csv`, `backtest_by_fold.csv`, `backtest_by_series.csv`, `worst_items.csv`,
 `feature_importance.csv`, `metrics.json`. Nothing is trained or recomputed at page load.
 
-Tests: `pytest` (38 tests incl. headless renders of all three pages, ~30 s).
+Tests: `pytest` (38 tests incl. headless renders of all three pages, ~30 s). The dashboard tests also pass in a venv built from `requirements-app.txt` alone.
 
 ## Run the dashboard
 
@@ -78,11 +78,33 @@ not" list, and a link to the design notes.
 
 ## Screenshots
 
-_Forecast page — screenshot coming after deploy_
+**Forecast** — history, 4-week forecast with P10–P90 band, last year's same weeks, order recommendation
 
-_Model quality page — screenshot coming after deploy_
+![Forecast page](docs/img/forecast.png)
 
-_How it works page — screenshot coming after deploy_
+**Model quality** — backtest table with verdict, headline metrics, WAPE by fold
+
+![Model quality page](docs/img/quality.png)
+
+**How it works** — the method in plain language
+
+![How it works page](docs/img/how.png)
+
+Captured headless at 1400×900 with `python scripts/screenshots.py` (Playwright).
+
+## Deploy your own
+
+Streamlit Community Cloud installs from `requirements.txt`, which here just includes
+`requirements-app.txt`: the dashboard's slim runtime set (streamlit, plotly, pandas, numpy, pyarrow,
+jinja2), no LightGBM. Training dependencies live in `requirements-dev.txt`.
+
+1. Fork this repository.
+2. On [share.streamlit.io](https://share.streamlit.io) click **Create app**, pick the fork and branch `main`.
+3. Set **Main file path** to `app.py`; under **Advanced settings** choose **Python 3.11** (the version the
+   pins were tested with; Community Cloud reads no version file). Deploy. The committed `artifacts/`
+   are all the app needs, so there is no Kaggle step.
+
+`.streamlit/config.toml` sets the light theme, headless mode and disables usage stats.
 
 ## Stack
 

@@ -5,7 +5,7 @@ milestone; after each milestone stop, show how to run it, and wait for Davut's O
 
 ## 0. Status (updated 2026-10-11)
 
-**Milestones 1–4 are done (38 tests pass incl. headless page renders; eight artifacts for all 500 series committed; three-page dashboard runs locally). Next: M5 — deploy to Streamlit Community Cloud or a Hugging Face Space (`sdk: streamlit`), add screenshots to the README "Screenshots" section and a GIF to `assets/demo.gif`, then the live-demo link.**
+**Milestones 1–4 are done and M5 is half done: deploy prep is committed (slim `requirements-app.txt`, `.streamlit/config.toml`, README screenshots and deploy steps). Remaining for M5: deploy on Streamlit Community Cloud, paste the live URL into the README, record `assets/demo.gif`, final DESIGN.md next-steps.**
 
 Implemented:
 - `demand_forecast/data.py` — load daily, Monday-anchored weekly aggregation (full weeks only, gaps → 0), checks, synthetic generator
@@ -33,11 +33,23 @@ Environment notes (macOS):
 - Kaggle CLI 2.x authenticates with `~/.kaggle/access_token` (or `kaggle auth login`). A 403 on download means the account
   has not accepted the competition rules; `kaggle competitions list -s demand` shows `userHasEntered`.
 
-M5 starting point: `requirements.txt` pins streamlit 1.65.0 and plotly 7.1.0 (the versions the pages were built and
-tested with). The app imports only pandas/pyarrow/plotly/streamlit plus the pure modules `demand_forecast.config` and
-`demand_forecast.recommend`, so a slimmer requirements file without lightgbm/scikit-learn would speed up the cold start on
-free hosting if needed. Deploy, take the three screenshots for the README, record `assets/demo.gif`, add the live link, and
-finish DESIGN.md's next-steps list (§11).
+M5 (1/2) done — deploy facts checked against the Streamlit docs on 2026-10-11:
+- Community Cloud installs from a fixed set of file names (`requirements.txt`, `pyproject.toml`, `uv.lock`, `Pipfile`,
+  `environment.yml`; first found wins, entrypoint dir then repo root). You cannot point it at a custom name, so
+  `requirements.txt` is a one-line `-r requirements-app.txt` include; `requirements-app.txt` is the slim, pinned runtime set
+  (streamlit 1.65.0, plotly 7.1.0, pandas 3.0.6, numpy 2.4.6, pyarrow 25.0.1, jinja2 3.1.6; no lightgbm). Verified: a fresh
+  venv from it alone (38 packages) runs all dashboard AppTest tests. Training/dev deps are in `requirements-dev.txt`
+  (CI, README and Makefile already use it).
+- Python version is chosen only in the deploy form's *Advanced settings* dropdown (default is now 3.12); no `.python-version`
+  or `runtime.txt` is honoured, so none was added. Choose 3.11 to match the pins (they also have 3.12 wheels).
+- `.streamlit/config.toml`: light theme, headless, no usage stats. `.streamlit/secrets.toml` is git-ignored.
+- `scripts/screenshots.py` (Playwright, dev-only: `pip install playwright && playwright install chromium`) starts the app on a
+  free port and writes `docs/img/{forecast,quality,how}.png` at 1400×900, each < 400 KB. The default page is served at the
+  root URL (its `url_path` is ignored), which the script accounts for.
+
+M5 (2/2) to do: deploy at share.streamlit.io (main file `app.py`, Python 3.11), replace `https://<app>.streamlit.app` in the
+README, check cold-start time, record `assets/demo.gif` (e.g. Playwright video → gif), write the next-steps list in
+DESIGN.md (§11: promotions/price, hierarchy, conformal calibration, ablation without lags).
 
 ## 1. Goal
 
