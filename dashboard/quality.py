@@ -30,7 +30,7 @@ def summary_table(summary: pd.DataFrame) -> pd.DataFrame:
     s = summary.copy()
     s["method"] = s["method"].map(METHOD_LABELS).fillna(s["method"])
     s["wape"] = 100 * s["wape"]
-    s["coverage_80"] = 100 * s["coverage_80"]
+    s["coverage_80"] = (100 * s["coverage_80"]).map(lambda v: f"{v:.1f}" if pd.notna(v) else "\u2013")
     return s.rename(columns={"method": "Method", "wape": "WAPE (%)", "mae": "MAE (units/week)",
                              "bias": "Bias (units/week)", "coverage_80": "P10–P90 coverage (%)"})
 
@@ -40,8 +40,7 @@ def summary_styler(summary: pd.DataFrame):
     lgb = t["Method"].str.startswith("LightGBM")
     return (t.style
             .apply(lambda row: [HIGHLIGHT if lgb.loc[row.name] else ""] * len(row), axis=1)
-            .format({"WAPE (%)": "{:.1f}", "MAE (units/week)": "{:.1f}", "Bias (units/week)": "{:+.1f}",
-                     "P10–P90 coverage (%)": "{:.1f}"}, na_rep="–"))
+            .format({"WAPE (%)": "{:.1f}", "MAE (units/week)": "{:.1f}", "Bias (units/week)": "{:+.1f}"}))
 
 
 def business_paragraph(metrics: dict, by_fold: pd.DataFrame, by_series: pd.DataFrame, worst: pd.DataFrame) -> str:

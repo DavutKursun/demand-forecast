@@ -55,7 +55,7 @@ def forecast_chart(hist: pd.DataFrame, f: pd.DataFrame, origin: pd.Timestamp) ->
         height=430,
         margin=dict(l=10, r=10, t=48, b=10),
         hovermode="x unified",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0, title=None),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0, title=None, traceorder="normal"),
         xaxis=dict(title=None, showgrid=False, linecolor=P["axis"]),
         yaxis=dict(title="units / week", rangemode="tozero", showgrid=True, gridcolor=P["grid"],
                    zeroline=False, linecolor=P["axis"]),
@@ -166,7 +166,7 @@ def direct_horizon_figure() -> go.Figure:
                        xshift=-4, font=dict(size=11, color=P["ink"]))
     fig.update_layout(
         height=320, margin=dict(l=10, r=10, t=56, b=10), showlegend=True,
-        legend=dict(orientation="h", yanchor="bottom", y=1.04, x=0),
+        legend=dict(orientation="h", yanchor="bottom", y=1.04, x=0, traceorder="normal"),
         xaxis=dict(title="weeks from the forecast origin", tickmode="array", tickvals=hist_x + fx,
                    ticktext=["−4", "−3", "−2", "−1", "0", "+1", "+2", "+3", "+4"], showgrid=False, linecolor=P["axis"],
                    range=[-4.4, 4.6]),
