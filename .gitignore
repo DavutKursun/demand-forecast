@@ -1,0 +1,11 @@
+data/raw/
+artifacts/backtest_predictions.parquet
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.vscode/
+.idea/
+.DS_Store
+scratchpad/
+.env
