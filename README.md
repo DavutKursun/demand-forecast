@@ -19,15 +19,17 @@ Every week a retailer decides how much of each product to order. Too little and 
 
 ## Results
 
+Rolling-origin backtest on the real data: 6 folds (origins every 4 weeks, July–November 2017), 500 store–product series, horizon 1–4 weeks, models retrained per fold. Numbers from `python scripts/eval.py`.
+
 | Method | WAPE (backtest) |
 |---|---|
-| Same week last year | _M3_ |
-| 8-week moving average | _M3_ |
-| **LightGBM (this project)** | _M3_ |
+| Seasonal naive (same week last year) | 6.4% |
+| 8-week moving average | 11.9% |
+| **LightGBM (this project)** | **4.4%** |
 
-Improvement vs best baseline: _M3_ · folds won: _M3_/6 · P10–P90 coverage: _M3_
+Improvement vs best baseline: **30.6%** · folds won: **6/6** · P10–P90 coverage: **76%** (target 80%) · bias: +0.7 units/week
 
-What does not work yet: products with very low volume (WAPE is unstable), promotions/price effects (not in the data).
+Where it is weakest: the lowest-volume series. The worst 10 items sell 110–217 units a week against a median of 351, and their WAPE is 9–11%, so there is no catastrophic tail. Not in the data: promotions and prices, and the intermittent near-zero products that real catalogues have. Full findings in [docs/DESIGN.md](docs/DESIGN.md#findings-milestone-3-real-data).
 
 ## Run it yourself
 
@@ -35,6 +37,8 @@ What does not work yet: products with very low volume (WAPE is unstable), promot
 git clone https://github.com/DavutKursun/demand-forecast && cd demand-forecast
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
+# macOS only: LightGBM's wheel links the OpenMP runtime, which Homebrew provides
+brew install libomp
 
 python scripts/download_data.py        # Kaggle API; or: python scripts/prepare.py --synthetic
 python scripts/prepare.py              # → artifacts/weekly.parquet

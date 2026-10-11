@@ -5,7 +5,7 @@ milestone; after each milestone stop, show how to run it, and wait for Davut's O
 
 ## 0. Status (updated 2026-10-11)
 
-**Milestones 1, 2 and most of 3 are implemented and tested (18 tests, synthetic data, ~10 s). Start at "Step 0" below.**
+**Milestones 1–3 are done and verified on the real data (18 tests pass; artifacts for all 500 series committed). Next: M4 (the three app pages of §7), then M5.**
 
 Implemented:
 - `demand_forecast/data.py` — load daily, Monday-anchored weekly aggregation (full weeks only, gaps → 0), checks, synthetic generator
@@ -18,13 +18,23 @@ Implemented:
 - `app.py` — a first Streamlit page (chart, order box, backtest table); M4 turns it into the three pages of §7
 - tests incl. an explicit leakage test; CI runs tests + a synthetic train with 2 folds
 
-Synthetic smoke run (15 series, 3 folds): LightGBM WAPE 4.9% vs seasonal naive 7.2% vs MA 25.9%, all folds won,
-coverage 62% (narrow — check on real data), 37 s. Real data has 500 series: expect ~15–25 min for 6 folds on a laptop.
+M3 result on the real data (Kaggle, 500 series, 260 weeks, 6 folds, `scripts/train.py`, 7.8 min on an Apple-silicon
+laptop): LightGBM WAPE 4.4% vs seasonal naive 6.4% vs 8-week MA 11.9%, 6/6 folds won, P10–P90 coverage 76% (inside
+70–90%, no adjustment applied). Acceptance criteria of §10 for the model are met. Findings, per-fold table, worst items
+and feature analysis are in `docs/DESIGN.md`; the README results table is filled from `scripts/eval.py`.
+Committed in `artifacts/`: weekly.parquet (all 500 series), forecasts.parquet, backtest_summary.csv, backtest_by_fold.csv,
+worst_items.csv, feature_importance.csv, metrics.json. Not committed: data/raw/ and backtest_predictions.parquet (ignored).
 
-Step 0 (do first): download the Kaggle data (`scripts/download_data.py`; needs ~/.kaggle/kaggle.json and accepted
-competition rules), run `prepare.py`, then `train.py --folds 2` once to measure time and look at the table. Report
-timing, the summary table and coverage; stop. Then M3 close-out (full 6 folds, coverage check, DESIGN.md findings,
-README table) and M4/M5 as in §9.
+Environment notes (macOS):
+- LightGBM's wheel links the OpenMP runtime; install it with `brew install libomp`, otherwise `import lightgbm` fails with
+  "Library not loaded: @rpath/libomp.dylib". Training uses all cores through OpenMP; system CPU time is high, which is normal.
+- `python3` may resolve to 3.9; create the venv from `python3.11`. Use `.venv/bin/python` for every script.
+- Kaggle CLI 2.x authenticates with `~/.kaggle/access_token` (or `kaggle auth login`). A 403 on download means the account
+  has not accepted the competition rules; `kaggle competitions list -s demand` shows `userHasEntered`.
+
+M4 starting point: `app.py` is one page reading the committed artifacts; build the three pages of §7 from it. The
+Model-quality page gets per-fold WAPE from backtest_by_fold.csv, coverage from metrics.json, worst items and importances
+from their CSVs. Re-running `train.py` is only needed if the data or model changes.
 
 ## 1. Goal
 
