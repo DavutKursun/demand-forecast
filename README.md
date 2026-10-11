@@ -42,12 +42,47 @@ brew install libomp
 
 python scripts/download_data.py        # Kaggle API; or: python scripts/prepare.py --synthetic
 python scripts/prepare.py              # → artifacts/weekly.parquet
-python scripts/train.py                # backtest + final forecasts → artifacts/
+python scripts/train.py                # backtest + final forecasts → artifacts/ (8 files)
 python scripts/eval.py                 # prints the results table
 streamlit run app.py
 ```
 
-Tests: `pytest` (18 tests, synthetic data, ~10 s).
+The dashboard reads only `artifacts/`, all of it committed, so it runs without a Kaggle account: `weekly.parquet`,
+`forecasts.parquet`, `backtest_summary.csv`, `backtest_by_fold.csv`, `backtest_by_series.csv`, `worst_items.csv`,
+`feature_importance.csv`, `metrics.json`. Nothing is trained or recomputed at page load.
+
+Tests: `pytest` (38 tests incl. headless renders of all three pages, ~30 s).
+
+## Run the dashboard
+
+```bash
+streamlit run app.py      # or: make app
+```
+
+It starts in seconds and reads only the committed `artifacts/`; nothing is trained at runtime.
+
+**Forecast.** Pick a store and product (or hit *Random item*). The chart shows the last 52 weeks of
+sales, the 4-week forecast with its P10–P90 band, the same weeks last year as a dotted line, and the
+forecast origin. Enter stock on hand, lead time and service level in the sidebar and the page tells you
+how much to order and spells out the arithmetic. The forecast table and CSV downloads (this series or
+all 500) sit below the chart, with the series' own backtest WAPE for context.
+
+**Model quality.** The backtest table with the LightGBM row highlighted and a one-line verdict; WAPE by
+fold origin for the model and both baselines; coverage, folds won, series count and data end; the
+distribution of per-series WAPE with its median; the ten hardest series with a note on why; the top-15
+features by gain; and a plain-language paragraph for a store manager.
+
+**How it works.** Four short sections, Data, Features, Model, Backtest & recommendation, written for a
+client who is not a data scientist, a figure explaining the direct multi-horizon design, a "what this is
+not" list, and a link to the design notes.
+
+## Screenshots
+
+_Forecast page — screenshot coming after deploy_
+
+_Model quality page — screenshot coming after deploy_
+
+_How it works page — screenshot coming after deploy_
 
 ## Stack
 

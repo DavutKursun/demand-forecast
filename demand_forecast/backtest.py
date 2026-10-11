@@ -102,7 +102,16 @@ def by_fold(predictions: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows).pivot(index="origin", columns="method", values="wape").reset_index()
 
 
-def worst_items(predictions: pd.DataFrame, method: str = "lightgbm", n: int = 10) -> pd.DataFrame:
+def by_series(predictions: pd.DataFrame, method: str = "lightgbm") -> pd.DataFrame:
+    """Per-series backtest metrics for one method: store, item, wape, mae, mean_sales, n_points."""
     g = predictions[predictions["method"] == method]
-    rows = [{"store": s, "item": i, "wape": wape(x["y"], x["yhat"]), "mean_sales": x["y"].mean()} for (s, i), x in g.groupby(["store", "item"])]
-    return pd.DataFrame(rows).sort_values("wape", ascending=False).head(n).reset_index(drop=True)
+    rows = [
+        {"store": s, "item": i, "wape": wape(x["y"], x["yhat"]), "mae": mae(x["y"], x["yhat"]), "mean_sales": x["y"].mean(), "n_points": len(x)}
+        for (s, i), x in g.groupby(["store", "item"])
+    ]
+    return pd.DataFrame(rows).sort_values(["store", "item"]).reset_index(drop=True)
+
+
+def worst_items(predictions: pd.DataFrame, method: str = "lightgbm", n: int = 10) -> pd.DataFrame:
+    per_series = by_series(predictions, method)
+    return per_series.sort_values("wape", ascending=False).head(n)[["store", "item", "wape", "mean_sales"]].reset_index(drop=True)

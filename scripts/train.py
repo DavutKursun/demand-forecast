@@ -4,8 +4,8 @@
     python scripts/train.py                 # uses artifacts/weekly.parquet
     python scripts/train.py --folds 3       # quicker
 
-Outputs (artifacts/): backtest_predictions.parquet, backtest_summary.csv, backtest_by_fold.csv,
-worst_items.csv, feature_importance.csv, forecasts.parquet, metrics.json
+Outputs (artifacts/): backtest_predictions.parquet (not committed), backtest_summary.csv, backtest_by_fold.csv,
+backtest_by_series.csv, worst_items.csv, feature_importance.csv, forecasts.parquet, metrics.json
 """
 
 from __future__ import annotations
@@ -19,7 +19,7 @@ from pathlib import Path
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from demand_forecast.backtest import run_backtest, worst_items  # noqa: E402
+from demand_forecast.backtest import by_series, run_backtest, worst_items  # noqa: E402
 from demand_forecast.config import ARTIFACTS, BACKTEST_FOLDS, BACKTEST_STEP  # noqa: E402
 from demand_forecast.features import build_at_origin, build_training_frame  # noqa: E402
 from demand_forecast.models import fit  # noqa: E402
@@ -42,6 +42,7 @@ def main(argv=None) -> int:
     bt.summary.to_csv(a.out / "backtest_summary.csv", index=False)
     bt.by_fold.to_csv(a.out / "backtest_by_fold.csv", index=False)
     worst_items(bt.predictions).to_csv(a.out / "worst_items.csv", index=False)
+    by_series(bt.predictions).to_csv(a.out / "backtest_by_series.csv", index=False)
 
     # final models on everything, forecast the next 4 weeks
     origin = weekly["week"].max()

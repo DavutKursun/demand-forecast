@@ -5,7 +5,7 @@ milestone; after each milestone stop, show how to run it, and wait for Davut's O
 
 ## 0. Status (updated 2026-10-11)
 
-**Milestones 1–3 are done and verified on the real data (18 tests pass; artifacts for all 500 series committed). Next: M4 (the three app pages of §7), then M5.**
+**Milestones 1–4 are done (38 tests pass incl. headless page renders; eight artifacts for all 500 series committed; three-page dashboard runs locally). Next: M5 — deploy to Streamlit Community Cloud or a Hugging Face Space (`sdk: streamlit`), add screenshots to the README "Screenshots" section and a GIF to `assets/demo.gif`, then the live-demo link.**
 
 Implemented:
 - `demand_forecast/data.py` — load daily, Monday-anchored weekly aggregation (full weeks only, gaps → 0), checks, synthetic generator
@@ -15,15 +15,16 @@ Implemented:
 - `demand_forecast/backtest.py` — rolling-origin folds, WAPE/MAE/bias/coverage, per-fold table, worst items
 - `demand_forecast/recommend.py` — order quantity from stock, lead time, service level, with a plain-language explanation
 - `scripts/download_data.py`, `prepare.py` (`--synthetic` option), `train.py` (backtest + final models + artifacts + metrics.json), `eval.py`
-- `app.py` — a first Streamlit page (chart, order box, backtest table); M4 turns it into the three pages of §7
-- tests incl. an explicit leakage test; CI runs tests + a synthetic train with 2 folds
+- `app.py` — entry point with `st.navigation`; pages live in `dashboard/`: `common.py` (cached `load()` of the eight artifacts, `require_artifacts()` guard, palette, pure helpers), `charts.py` (pure Plotly builders), `forecast.py`, `quality.py`, `how.py`
+- tests incl. an explicit leakage test and AppTest renders of all three pages (`tests/test_dashboard.py`); CI runs tests + a synthetic train with 2 folds
 
 M3 result on the real data (Kaggle, 500 series, 260 weeks, 6 folds, `scripts/train.py`, 7.8 min on an Apple-silicon
 laptop): LightGBM WAPE 4.4% vs seasonal naive 6.4% vs 8-week MA 11.9%, 6/6 folds won, P10–P90 coverage 76% (inside
 70–90%, no adjustment applied). Acceptance criteria of §10 for the model are met. Findings, per-fold table, worst items
 and feature analysis are in `docs/DESIGN.md`; the README results table is filled from `scripts/eval.py`.
 Committed in `artifacts/`: weekly.parquet (all 500 series), forecasts.parquet, backtest_summary.csv, backtest_by_fold.csv,
-worst_items.csv, feature_importance.csv, metrics.json. Not committed: data/raw/ and backtest_predictions.parquet (ignored).
+backtest_by_series.csv (LightGBM WAPE/MAE per series), worst_items.csv, feature_importance.csv, metrics.json.
+Not committed: data/raw/ and backtest_predictions.parquet (ignored).
 
 Environment notes (macOS):
 - LightGBM's wheel links the OpenMP runtime; install it with `brew install libomp`, otherwise `import lightgbm` fails with
@@ -32,9 +33,11 @@ Environment notes (macOS):
 - Kaggle CLI 2.x authenticates with `~/.kaggle/access_token` (or `kaggle auth login`). A 403 on download means the account
   has not accepted the competition rules; `kaggle competitions list -s demand` shows `userHasEntered`.
 
-M4 starting point: `app.py` is one page reading the committed artifacts; build the three pages of §7 from it. The
-Model-quality page gets per-fold WAPE from backtest_by_fold.csv, coverage from metrics.json, worst items and importances
-from their CSVs. Re-running `train.py` is only needed if the data or model changes.
+M5 starting point: `requirements.txt` pins streamlit 1.65.0 and plotly 7.1.0 (the versions the pages were built and
+tested with). The app imports only pandas/pyarrow/plotly/streamlit plus the pure modules `demand_forecast.config` and
+`demand_forecast.recommend`, so a slimmer requirements file without lightgbm/scikit-learn would speed up the cold start on
+free hosting if needed. Deploy, take the three screenshots for the README, record `assets/demo.gif`, add the live link, and
+finish DESIGN.md's next-steps list (§11).
 
 ## 1. Goal
 
@@ -101,8 +104,9 @@ Python 3.11, `pandas`, `numpy`, `lightgbm`, `scikit-learn`, `streamlit`, `plotly
   interval coverage of P10–P90 (target ≈ 80%). Report overall, per fold, per store,
   and worst 10 items.
 - Final models: retrain on all data; forecast the next 4 weeks for every series; save
-  `artifacts/forecasts.parquet`, `artifacts/backtest.parquet`, `artifacts/metrics.json`,
-  feature importances.
+  `artifacts/forecasts.parquet`, `backtest_summary.csv`, `backtest_by_fold.csv`,
+  `backtest_by_series.csv` (store, item, wape, mae, mean_sales, n_points; LightGBM only),
+  `worst_items.csv`, `feature_importance.csv`, `metrics.json`.
 
 ## 6. Order recommendation
 
@@ -121,6 +125,9 @@ CSV download of recommendations for all products of the selected store.
    what this means for the business.
 3. **How it works** — short explanation with a diagram; link to DESIGN.md.
 Keep the UI simple and fast; cache data loading with `st.cache_data`.
+The app reads exactly these eight artifacts and nothing else (guarded by `require_artifacts()` in
+`dashboard/common.py`): weekly.parquet, forecasts.parquet, backtest_summary.csv, backtest_by_fold.csv,
+backtest_by_series.csv, worst_items.csv, feature_importance.csv, metrics.json.
 
 ## 8. Repository layout
 

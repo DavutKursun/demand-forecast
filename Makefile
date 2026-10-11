@@ -12,5 +12,5 @@ train:
 	$(PY) scripts/train.py
 eval:
 	$(PY) scripts/eval.py
-app:
-	streamlit run app.py
+app:             ## run the dashboard locally (reads artifacts/ only)
+	$(PY) -m streamlit run app.py
