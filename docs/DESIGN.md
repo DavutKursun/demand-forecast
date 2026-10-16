@@ -144,6 +144,34 @@ Share of total LightGBM gain, summed over the 12 models:
 - `horizon` has zero gain by construction: there is one model per horizon, so it is constant within
   each model.
 
+## Next steps
+
+1. **Conformal calibration of the interval.** Coverage is 76% against a nominal 80%, and the misses are
+   one-sided: 13.5% of actuals fall below P10 versus 10.4% above P90. A split-conformal step would
+   shift each quantile by the matching residual quantile measured on the backtest folds, per horizon,
+   bringing coverage to the target without retraining. It also makes the P90-based safety stock
+   defensible to an auditor: the band's hit rate is measured, not assumed.
+2. **Price and promotion inputs.** The public dataset has neither, so promotions, markdowns and
+   stock-outs are invisible to the model and to the backtest. Real clients have this data; adding
+   planned promotions for the target week (and their lagged effect) is usually the single largest
+   accuracy gain after seasonality, and it is also what turns the tool into a what-if planner.
+3. **Cold start for new items.** The seasonal features need 52 weeks of history, so a new product
+   has no forecast for its first year. A fallback that borrows the seasonal profile of a similar
+   product (same category, store) scaled to the new item's first weeks, and hands over to the full
+   model once history exists, would cover the gap.
+4. **A classical third baseline: ETS/Theta via `statsforecast`.** The two rules of thumb are what a
+   business would use; a tuned statistical model is what a forecasting team would use. Adding ETS and
+   Theta per series to the same folds shows whether the gradient-boosting machinery earns its
+   complexity or merely matches a 40-year-old method.
+5. **Monthly retraining job.** `scripts/train.py` takes under 8 minutes, so a scheduled GitHub Action
+   (or cron) can append the new month, retrain, rerun the 6-fold backtest and commit fresh artifacts,
+   failing the job if WAPE regresses against the previous metrics.json or coverage leaves the 70–90%
+   band. Drift is then caught on a schedule rather than noticed by a store manager.
+
+Also worth doing when time allows: the "LightGBM without lags" ablation from the spec (the gain table
+suggests lags 8, 12 and 26 and the rolling-std features could be dropped), and per-store P10–P90
+coverage to see whether the slight under-coverage is concentrated in the low-volume stores.
+
 ## Known limitations
 
 - No price/promotion data in the public dataset (real clients usually have it; it helps).

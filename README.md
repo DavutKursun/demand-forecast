@@ -2,9 +2,11 @@
 
 **Weekly sales forecasts per store and product, with an uncertainty band and a plain-language answer to "how much should I order this week?"**
 
-<!-- M5: ![demo](assets/demo.gif) -->
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://demand-forecast-jcp3fj8kkgjxvxldxgk99l.streamlit.app)
 
-🚀 **Live demo:** `https://<app>.streamlit.app` _(URL filled in after deploy)_ · 📄 **How it works:** [docs/DESIGN.md](docs/DESIGN.md)
+🚀 **Live demo:** **[https://demand-forecast-jcp3fj8kkgjxvxldxgk99l.streamlit.app](https://demand-forecast-jcp3fj8kkgjxvxldxgk99l.streamlit.app)** _(free tier — may take ~30 s to wake up)_ · 📄 **How it works:** [docs/DESIGN.md](docs/DESIGN.md)
+
+![Demo: pick a random item, change lead time and service level, open Model quality](docs/img/demo.gif)
 
 ## The problem
 
@@ -90,7 +92,7 @@ not" list, and a link to the design notes.
 
 ![How it works page](docs/img/how.png)
 
-Captured headless at 1400×900 with `python scripts/screenshots.py` (Playwright).
+Captured headless at 1400×900 with `python scripts/screenshots.py` (Playwright); the demo GIF at the top comes from `python scripts/demo_gif.py`.
 
 ## Deploy your own
 
