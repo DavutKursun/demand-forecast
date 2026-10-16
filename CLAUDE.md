@@ -5,7 +5,7 @@ milestone; after each milestone stop, show how to run it, and wait for Davut's O
 
 ## 0. Status (updated 2026-10-11)
 
-**Milestones 1–4 are done and M5 is half done: deploy prep is committed (slim `requirements-app.txt`, `.streamlit/config.toml`, README screenshots and deploy steps). Remaining for M5: deploy on Streamlit Community Cloud, paste the live URL into the README, record `assets/demo.gif`, final DESIGN.md next-steps.**
+**All five milestones are done; the project is complete.** Live demo: `https://demand-forecast-jcp3fj8kkgjxvxldxgk99l.streamlit.app` (Streamlit Community Cloud, free tier, ~30 s wake-up). Remaining maintenance only: see DESIGN.md "Next steps".
 
 Implemented:
 - `demand_forecast/data.py` — load daily, Monday-anchored weekly aggregation (full weeks only, gaps → 0), checks, synthetic generator
@@ -47,9 +47,11 @@ M5 (1/2) done — deploy facts checked against the Streamlit docs on 2026-10-11:
   free port and writes `docs/img/{forecast,quality,how}.png` at 1400×900, each < 400 KB. The default page is served at the
   root URL (its `url_path` is ignored), which the script accounts for.
 
-M5 (2/2) to do: deploy at share.streamlit.io (main file `app.py`, Python 3.11), replace `https://<app>.streamlit.app` in the
-README, check cold-start time, record `assets/demo.gif` (e.g. Playwright video → gif), write the next-steps list in
-DESIGN.md (§11: promotions/price, hierarchy, conformal calibration, ablation without lags).
+M5 (2/2) done: README carries the live link (badge + bold link, wake-up note) and `docs/img/demo.gif` (recorded with
+`scripts/demo_gif.py`: Playwright drives the Forecast page — two random items, lead time 2→4, P50 — then Model quality and a
+scroll; frames assembled with Pillow using one global palette so only changed regions are stored; < 3 MB). DESIGN.md has a
+"Next steps" section (conformal calibration, price/promo inputs, cold start, statsforecast ETS/Theta baseline, monthly
+retraining job). To refresh after a retrain: `train.py` → `screenshots.py` → `demo_gif.py` → commit artifacts and images.
 
 ## 1. Goal
 
@@ -152,7 +154,7 @@ demand-forecast/
     download_data.py, prepare.py, train.py (backtest + final models + artifacts), eval.py (prints metrics table)
   artifacts/                 # committed: weekly aggregates subset, forecasts, backtest, metrics (small parquet/json)
   tests/                     # feature leakage tests, backtest split tests, recommendation math
-  docs/DESIGN.md, assets/demo.gif, README.md, requirements.txt, LICENSE, .github/workflows/ci.yml
+  docs/DESIGN.md, docs/img/ (screenshots + demo.gif), README.md, requirements*.txt, LICENSE, .github/workflows/ci.yml
 ```
 
 ## 9. Milestones
