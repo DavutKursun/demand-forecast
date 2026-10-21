@@ -5,7 +5,7 @@ milestone; after each milestone stop, show how to run it, and wait for Davut's O
 
 ## 0. Status (updated 2026-10-11)
 
-**All five milestones are done; the project is complete.** Live demo: `https://demand-forecast-jcp3fj8kkgjxvxldxgk99l.streamlit.app` (Streamlit Community Cloud, free tier, ~30 s wake-up). Remaining maintenance only: see DESIGN.md "Next steps".
+**All five milestones are done; the project is complete.** Live demo (primary): Hugging Face Space `https://huggingface.co/spaces/DavutKursun/demand-forecast` (direct app URL `https://davutkursun-demand-forecast.hf.space`, ~1 min wake-up after idle). Mirror: Streamlit Community Cloud `https://demand-forecast-jcp3fj8kkgjxvxldxgk99l.streamlit.app` (free tier, ~30 s wake-up). Remaining maintenance only: see DESIGN.md "Next steps".
 
 Implemented:
 - `demand_forecast/data.py` — load daily, Monday-anchored weekly aggregation (full weeks only, gaps → 0), checks, synthetic generator
@@ -52,6 +52,21 @@ M5 (2/2) done: README carries the live link (badge + bold link, wake-up note) an
 scroll; frames assembled with Pillow using one global palette so only changed regions are stored; < 3 MB). DESIGN.md has a
 "Next steps" section (conformal calibration, price/promo inputs, cold start, statsforecast ETS/Theta baseline, monthly
 retraining job). To refresh after a retrain: `train.py` → `screenshots.py` → `demo_gif.py` → commit artifacts and images.
+
+Hugging Face Space mirror (added 2026-10-21, `scripts/publish_space.py`, Hub API only, one `upload_folder` commit):
+- Hugging Face no longer accepts `sdk: streamlit` for new Spaces: the create API allows only gradio, docker or static (the
+  Streamlit SDK docs page is stale; the config reference agrees with the API). So the Space is a **Docker Space**: the script
+  generates a Dockerfile on `python:3.11-slim` (uid-1000 user, writable HOME) that installs the pinned requirements and runs
+  `streamlit run app.py` on port 7860 with headless, CORS and XSRF flags matching the old SDK; README YAML has `sdk: docker`,
+  `app_port: 7860`, `license: mit`; hardware cpu-basic, public.
+- Uploaded tree (22 files, 324 KB): app.py, dashboard/*.py, demand_forecast/{__init__,config,recommend}.py (the two modules
+  the app imports), .streamlit/config.toml, the eight artifacts, requirements-app.txt as requirements.txt, Dockerfile, README.
+  Nothing else (no raw data, scripts, tests, training code). A test asserts the publisher's artifact list equals REQUIRED.
+- First deploy: BUILDING → APP_STARTING at 31 s → RUNNING at 41 s (47 s from upload). Verified with Playwright at the direct
+  URL: Forecast 1 chart + table + metric, Model quality 3 charts + 2 tables + 4 metrics, How it works 1 chart; no exceptions,
+  no missing-file errors; first page 5.6 s (fresh session), next pages ~2 s.
+- Refresh after a retrain: `python scripts/publish_space.py --force` (re-uploads the tree; `--logs build|run` streams logs).
+  Needs `hf auth login`; huggingface_hub is dev-only tooling, not in the requirements files.
 
 ## 1. Goal
 
@@ -155,6 +170,7 @@ demand-forecast/
   artifacts/                 # committed: weekly aggregates subset, forecasts, backtest, metrics (small parquet/json)
   tests/                     # feature leakage tests, backtest split tests, recommendation math
   docs/DESIGN.md, docs/img/ (screenshots + demo.gif), README.md, requirements*.txt, LICENSE, .github/workflows/ci.yml
+  scripts/screenshots.py, demo_gif.py, publish_space.py   # dev-only: README images, Hugging Face Space mirror
 ```
 
 ## 9. Milestones

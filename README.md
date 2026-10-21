@@ -2,9 +2,9 @@
 
 **Weekly sales forecasts per store and product, with an uncertainty band and a plain-language answer to "how much should I order this week?"**
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://demand-forecast-jcp3fj8kkgjxvxldxgk99l.streamlit.app)
+[![Open in Hugging Face Spaces](https://huggingface.co/datasets/huggingface/badges/resolve/main/open-in-hf-spaces-md.svg)](https://huggingface.co/spaces/DavutKursun/demand-forecast) [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://demand-forecast-jcp3fj8kkgjxvxldxgk99l.streamlit.app)
 
-🚀 **Live demo:** **[https://demand-forecast-jcp3fj8kkgjxvxldxgk99l.streamlit.app](https://demand-forecast-jcp3fj8kkgjxvxldxgk99l.streamlit.app)** _(free tier — may take ~30 s to wake up)_ · 📄 **How it works:** [docs/DESIGN.md](docs/DESIGN.md)
+🚀 **Live demo:** **[huggingface.co/spaces/DavutKursun/demand-forecast](https://huggingface.co/spaces/DavutKursun/demand-forecast)** _(wakes up in about a minute after idle)_ · mirror on Streamlit Community Cloud: [demand-forecast-jcp3fj8kkgjxvxldxgk99l.streamlit.app](https://demand-forecast-jcp3fj8kkgjxvxldxgk99l.streamlit.app) _(free tier, ~30 s wake-up)_ — if one is asleep, try the other · 📄 **How it works:** [docs/DESIGN.md](docs/DESIGN.md)
 
 ![Demo: pick a random item, change lead time and service level, open Model quality](docs/img/demo.gif)
 
@@ -107,6 +107,8 @@ jinja2), no LightGBM. Training dependencies live in `requirements-dev.txt`.
    are all the app needs, so there is no Kaggle step.
 
 `.streamlit/config.toml` sets the light theme, headless mode and disables usage stats.
+
+**Hugging Face Space instead:** `python scripts/publish_space.py` assembles exactly what the app needs (app, `dashboard/`, the two `demand_forecast` modules it imports, the eight artifacts, `requirements-app.txt` as `requirements.txt`, a Space README with `sdk: streamlit`, `sdk_version` = the pinned Streamlit, `python_version: 3.11`) and uploads it in one commit through the Hub API; `--force` refreshes an existing Space after a retrain. Needs `hf auth login`.
 
 ## Stack
 

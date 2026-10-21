@@ -240,3 +240,18 @@ def test_how_page_renders_four_sections_and_one_figure():
     assert len(at.get("plotly_chart")) == 1
     text = " ".join(md.value for md in at.markdown)
     assert "What this is not" in text and "github.com/DavutKursun/demand-forecast/blob/main/docs/DESIGN.md" in text
+
+
+# ---- Hugging Face Space publisher ----------------------------------------------------------------
+
+
+def test_space_publisher_ships_exactly_the_required_artifacts():
+    import importlib.util
+
+    path = Path(__file__).resolve().parents[1] / "scripts" / "publish_space.py"
+    spec = importlib.util.spec_from_file_location("publish_space", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    assert tuple(mod.ARTIFACTS) == tuple(REQUIRED)
+    assert "demand_forecast/config.py" in mod.CODE and "demand_forecast/recommend.py" in mod.CODE
+    assert "streamlit==" in mod.dockerfile("1.65.0") or "1.65.0" in mod.dockerfile("1.65.0")
